@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload and Text Extraction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        
+        h2 {
+            text-align: center;
+        }
+        
+        .output-box {
+            width: 100%;
+            height: 200px;
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            overflow-y: auto;
+        }
+        
+        .output-box:empty::before {
+            content: "Text output will appear here...";
+            color: #aaa;
+        }
+        
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 100%;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        .loader {
+            display: none;
+            margin: 10px auto;
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #007BFF;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>File Upload and Text Extraction</h2>
+        <form id="upload-form">
+            <label for="file-input">Choose a file (Image or PDF):</label><br>
+            <input type="file" id="file-input" name="file" accept="image/*,.pdf" required><br><br>
+            <button type="submit">Upload and Process</button>
+        </form>
+        <div class="loader" id="loader"></div>
+        <div class="output-box" id="output-box"></div>
+    </div>
+
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', async(event) => {
+            event.preventDefault(); // Prevent form submission
+
+            const fileInput = document.getElementById('file-input');
+            const outputBox = document.getElementById('output-box');
+            const loader = document.getElementById('loader');
+
+            if (!fileInput.files.length) {
+                alert("Please select a file.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+
+            // Prepare the form data
+            const formData = new FormData();
+            formData.append("file", file);
+
+            // Show loader and reset output box
+            loader.style.display = "block";
+            outputBox.textContent = "";
+
+            try {
+                // Call the API
+                const response = await fetch("http://127.0.0.1:8000/process-file", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                // Hide loader
+                loader.style.display = "none";
+
+                if (response.ok) {
+                    const data = await response.json();
+                    outputBox.textContent = data.extracted_text || "No text extracted.";
+                } else {
+                    const errorText = await response.text();
+                    outputBox.textContent = `Error: ${errorText}`;
+                }
+            } catch (error) {
+                console.error(error);
+                loader.style.display = "none";
+                outputBox.textContent = "An error occurred. Please try again.";
+            }
+        });
+    </script>
+</body>
+
+</html>
