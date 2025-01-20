@@ -20,6 +20,9 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
 )
+@app.get("/")
+async def root():
+    return JSONResponse(content={"message": "Welcome to the File Upload and Text Extract App!"})
 @app.post("/process-file")
 async def process_file(file: UploadFile):
 
