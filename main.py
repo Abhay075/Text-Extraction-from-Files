@@ -6,6 +6,10 @@ import io
 import PyPDF2
 import magic
 from fastapi.middleware.cors import CORSMiddleware
+import os
+
+pytesseract.pytesseract.tesseract_cmd = "./tesseract" 
+os.environ["TESSDATA_PREFIX"] = "./tessdata/"
 
 # Initialize FastAPI
 app = FastAPI()
